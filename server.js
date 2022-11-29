@@ -1,14 +1,7 @@
-import express from "express"
-import cors from "cors"
-import users from "./api/users.route.js"
+const express = require("express");
+const app = express();
 
-const app = express()
 
-app.use(cors())
-app.use(express.json()) //able to read JSON
-
-app.use("/api/gachashop", users)
-app.use("*", (req, res)=> res.status(404).json({error: "not found"})) // error msg if api not found
-
-export default app
-
+app.listen(3000, () => {
+    console.log("server starting at port 3000")
+})
