@@ -1,4 +1,5 @@
 const express = require('express');
+const HttpError = require('../modals/http-error');
 const router = express.Router();
 
 const DUMMY_USERS = [
@@ -14,6 +15,10 @@ router.get('/user/:uid', (req, res, next) => {
     const user = DUMMY_USERS.find(u => {
         return u.id === userId;
     })
+
+    if(!user){
+        return next(new HttpError('Could not find any data for user id', 404));
+    }
 
     res.json({user});
 })
