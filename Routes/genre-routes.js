@@ -1,4 +1,5 @@
 const express = require('express');
+const HttpError = require('../modals/http-error');
 const router = express.Router();
 
 const DUMMY_GENRES = [
@@ -19,6 +20,11 @@ router.get('/genre/:genre', (req, res, next) => {
     const genre = DUMMY_GENRES.find(g => {
         return g.id === genreId;
     })
+
+    if(!genre){
+        return next(new HttpError('Could not find any data for genre id', 404));
+    }
+
 
     res.json({genre});
 })
