@@ -5,6 +5,8 @@ const genreRoutes = require('./Routes/genre-routes');
 
 const app = express();
 
+app.use(bodyParser.json());
+
 app.use('/api', userRoutes);
 app.use('/api', genreRoutes);
 app.use((error, req, res, next) => {
