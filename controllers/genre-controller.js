@@ -15,9 +15,9 @@ const DUMMY_GENRES = [
 ];
 
 const getGenreById = (req, res, next) => {
-  const genreId = req.params.genre;
+  const genreType = req.params.genre;
   const genre = DUMMY_GENRES.find((g) => {
-    return g.gid === genreId;
+    return g.genre === genreType;
   });
 
   if (!genre) {
@@ -39,5 +39,10 @@ const createGenre = (req, res, next) => {
   res.status(201).json({ genre: createGenre });
 };
 
+const updateGenre = (req, res, next) => {
+  
+};
+
 exports.getGenreById = getGenreById;
 exports.createGenre = createGenre;
+exports.updateGenre = updateGenre;
