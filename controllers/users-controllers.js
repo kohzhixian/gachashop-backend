@@ -3,64 +3,53 @@ const { v4: uuid } = require("uuid");
 
 let DUMMY_USERS = [
   {
-    id: "uniqueId",
-    uid: "u1",
+    id: "u1",
     username: "kzx",
+    email: "test@gmail.com",
     password: "123456",
   },
 ];
 
-const getUserById = (req, res, next) => {
-  const userId = req.params.uid;
-  const user = DUMMY_USERS.find((u) => {
-    return u.uid === userId;
-  });
+const getUsers = (req, res, next) => {
+  res.json({users: DUMMY_USERS});
+};
 
-  if (!user) {
-    return next(new HttpError("Could not find any data for user id", 404));
+const signup = (req, res, next) => {
+  const {username, email, password} = req.body;
+
+  const hasUser = DUMMY_USERS.find(u => u.username === username);
+
+  if(hasUser){
+    throw new HttpError('User already exists!!');
   }
 
-  res.json({ user });
-};
-
-const createUser = (req, res, next) => {
-  const { uid, username, password } = req.body;
   const createdUser = {
     id: uuid(),
-    uid,
     username,
-    password,
-  };
+    email,
+    password
+  }
 
   DUMMY_USERS.push(createdUser);
-  res.status(201).json({ user: createdUser });
+  res.status(201).json({user: createdUser});
 };
 
-const updateUser = (req, res, next) => {
-  const { username, password } = req.body;
-  const userId = req.params.uid;
+const login = (req, res, next) => {
+  const {username, password} = req.body;
 
-  const updatedUser = { ...DUMMY_USERS.find(u => u.uid === userId)};
-  const userIndex = DUMMY_USERS.findIndex(u => u.uid === userId);
+  const identifiedUser = DUMMY_USERS.find(u => u.username === username);
 
-  updatedUser.username = username;
-  updatedUser.password = password;
+  if(!identifiedUser || identifiedUser.password !== password){
+    throw new HttpError("Could not identify user, credential seems to be wrong!");
+  };
 
-  DUMMY_USERS[userIndex] = updatedUser;
-
-  res.status(200).json({user: updatedUser});
+  res.json({message: 'Logged In !!'});
 
 };
 
-const deleteUser = (req, res, next) => {
-  const userId = req.params.uid;
-  DUMMY_USERS = DUMMY_USERS.filter(u => u.uid !== userId);
-
-  res.status(200).json({message: "DELETED USER !!!"});
-}
 
 
-exports.getUserById = getUserById;
-exports.createUser = createUser;
-exports.updateUser = updateUser;
-exports.deleteUser = deleteUser;
+
+exports.getUsers = getUsers;
+exports.signup = signup;
+exports.login = login;
