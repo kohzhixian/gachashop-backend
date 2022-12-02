@@ -8,8 +8,8 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/api', userRoutes);
-app.use('/api', genreRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/genre', genreRoutes);
 
 app.use((req, res, next) => {
     const error = new HttpError('Could not find route', 404);
