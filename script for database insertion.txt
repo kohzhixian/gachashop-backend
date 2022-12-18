@@ -1,0 +1,33 @@
+connect to databse using command prompt
+mongosh "mongodb+srv://cluster0.hlulv8p.mongodb.net/gachashop" --apiVersion 1 --username everlastboy
+
+password: P@ssw0rd
+
+db.genres.insertOne(
+  {
+	genre: "Action",
+	games: [
+			{
+				game_name: "Epic Seven",
+				image_url: "epic seven image url",
+				price: 10,
+				_id: new objectId()
+			},	
+		 ]
+  }
+)
+
+db.genres.insert(
+  {
+	genre: "test",
+	games: [
+			{
+				"game_name": "Epic Seven",
+				"image_url": "epic seven image url",
+				"price": 10,
+				"_id": new ObjectId()
+			},	
+		 ]
+  }
+)
+
