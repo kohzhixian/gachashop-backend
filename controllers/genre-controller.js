@@ -1,14 +1,26 @@
 const HttpError = require("../models/http-error");
-const { v4: uuid } = require("uuid");
-const Genre = require("../models/genre");
-const mongoose = require("mongoose");
-const genre = require("../models/genre");
+const Games = require("../models/games");
+const { validationResult } = require("express-validator");
+
+const showAllGames = async (req, res, next) => {
+  let games;
+  try {
+    games = await Games.find();
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching games failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+  res.json({ games: games });
+};
 
 const getGamesByGenre = async (req, res, next) => {
   const genreType = req.params.genre;
   let genre;
   try {
-    genre = await Genre.findOne({ genre: genreType });
+    genre = await Games.find({ genre: genreType });
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a genre.",
@@ -24,70 +36,86 @@ const getGamesByGenre = async (req, res, next) => {
     );
     return next(error);
   }
-  res.json({ games: genre.games });
-
+  res.json({ games: genre });
 };
 
 const addGameToGenre = async (req, res, next) => {
-  const { genre, games } = req.body;
-  let genreType;
+  const { genre, game_name, image_url, price } = req.body;
+  const createdGame = new Games({
+    game_name,
+    genre,
+    image_url,
+    price,
+  });
   try {
-    genreType = await Genre.findOne({ genre: genre });
-    if (!genreType) throw new HttpError("Genre does not exist", 404);
+    await createdGame.save();
   } catch (err) {
-    const error = new HttpError("Genre does not exist", 404);
+    const error = new HttpError("Created place failed,please try again.", 500);
     return next(error);
   }
-  genreType.games.push(games);
-
-  try {
-    await genreType.save();
-  } catch (err) {
-    const error = new HttpError("Adding game failed, please try again", 500);
-    return next(error);
-  }
-
-  res.status(201).json({ message: "Game added!" });
+  res.status(201).json({ game: createdGame });
 };
 
 const updateGames = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalid inpputs passed, please check your data.", 422);
+  }
+
   const { price } = req.body;
   const gameId = req.params.gameId;
 
+  let game;
   try {
-    await Genre.updateMany(
-      { "games._id": gameId },
-      { $set: { "games.$.price": price } },
-      { multi: true }
-    );
+    game = await Games.findById(gameId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not update game.",
+      "Something went wrong, Could not update game",
+      500
+    );
+    return next(error);
+  }
+  game.price = price;
+  try {
+    await game.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update place.",
       500
     );
     return next(error);
   }
 
-  res.status(200).json({ message: "game updated" });
+  res.status(200).json({ game: game });
 };
 
 const deleteGames = async (req, res, next) => {
   const gameId = req.params.gameId;
-  try{
-    await Genre.updateMany(
-      {},
-      {$pull: {games:{_id: gameId}}}
-    )
-  }catch(err){
+  let game;
+  try {
+    game = await Games.findById(gameId);
+  } catch (err) {
     const error = new HttpError(
-      'Something went wrong, could not delete game', 500
-    )
+      "Something went wrong, could not delete game",
+      500
+    );
+    return next(error);
+  }
+
+  try {
+    await game.remove();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete game",
+      500
+    );
     return next(error);
   }
 
   res.status(200).json({ message: "Game deleted" });
 };
 
+exports.showAllGames = showAllGames;
 exports.getGamesByGenre = getGamesByGenre;
 exports.addGameToGenre = addGameToGenre;
 exports.updateGames = updateGames;

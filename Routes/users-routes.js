@@ -3,8 +3,10 @@ const usersController = require("../controllers/users-controllers");
 const { check } = require("express-validator");
 
 const router = express.Router();
+const checkAuth = require('../middleware/check-auth');
 
 router.get("/", usersController.getUsers);
+
 router.post(
   "/signup",
   [
